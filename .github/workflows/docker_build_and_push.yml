@@ -25,7 +25,7 @@ jobs:
             git diff --name-only HEAD^ HEAD > files.txt
             while IFS= read -r file; do
               echo $file
-              if [[ $file == Dockerfile ]] || [[ $file == entrypoint.sh ]]; then
+              if [[ $file == Dockerfile ]] || [[ $file == config/entrypoint.sh ]]; then
                 echo "::set-output name=dockerimage::true"
               fi
             done < files.txt
