@@ -17,7 +17,7 @@ ARG VER
 
 COPY --from=builder /shellinabox_${VER}_amd64.deb /tmp/
 
-COPY ./entrypoint.sh /usr/local/sbin/
+COPY ./config/entrypoint.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/entrypoint.sh
 
 RUN apt update && apt install -y openssl ssh-client wget && \
