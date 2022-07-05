@@ -1,0 +1,41 @@
+name: Try Build Docker Image
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  check:
+    name: Check changed files
+    outputs:
+      dockerimage: ${{ steps.git_diff.outputs.dockerimage }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Check modified files
+        id: git_diff
+        run: |
+            echo "=============== list modified files ==============="
+            git diff --name-only HEAD^ HEAD
+            echo "========== check paths of modified files =========="
+            git diff --name-only HEAD^ HEAD > files.txt
+            while IFS= read -r file; do
+              echo $file
+              if [[ $file == Dockerfile ]] || [[ $file == config/entrypoint.sh ]]; then
+                echo "::set-output name=dockerimage::true"
+              fi
+            done < files.txt
+
+  build:
+    needs: check
+    if: needs.check.outputs.dockerimage == 'true'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build image
+      run: docker build . --file ./Dockerfile --tag shellinabox:$(date +%s)
